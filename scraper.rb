@@ -12,6 +12,13 @@ require_relative 'lib/unspan_all_tables'
 require 'open-uri/cached'
 OpenURI::Cache.cache_path = '.cache'
 
+class String
+  def to_date
+    return if empty?
+    Date.parse(self).to_s rescue nil
+  end
+end
+
 class MembersPage < Scraped::HTML
   decorator RemoveNotes
   decorator WikidataIdsDecorator::Links
@@ -29,6 +36,9 @@ class MembersPage < Scraped::HTML
 end
 
 class MemberRow < Scraped::HTML
+  START_INDICATORS = %w[elected].to_set
+  END_INDICATORS = %w[resigned died].to_set
+
   def vacant?
     tds[2].text == 'Vacant'
   end
@@ -57,10 +67,26 @@ class MemberRow < Scraped::HTML
     tds[1].text.tidy
   end
 
+  field :start_date do
+    included_date[:when].to_date if START_INDICATORS.include? included_date[:what].to_s.downcase
+  end
+
+  field :end_date do
+    included_date[:when].to_date if END_INDICATORS.include? included_date[:what].to_s.downcase
+  end
+
+  field :unexpected_date_type do
+    ([included_date[:what].to_s.downcase] - START_INDICATORS.merge(END_INDICATORS).to_a).join(', ')
+  end
+
   private
 
   def tds
     noko.css('td,th')
+  end
+
+  def included_date
+    tds[2].text.match(/\((?<what>.*) on (?<when>\d+ \w+ \d+)\)/) || {}
   end
 end
 
