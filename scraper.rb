@@ -76,7 +76,7 @@ class MemberRow < Scraped::HTML
   end
 
   field :unexpected_date_type do
-    ([included_date[:what].to_s.downcase] - START_INDICATORS.merge(END_INDICATORS).to_a).join(', ')
+    ([included_date[:what].to_s.downcase] - START_INDICATORS.union(END_INDICATORS).to_a).join(', ')
   end
 
   private
