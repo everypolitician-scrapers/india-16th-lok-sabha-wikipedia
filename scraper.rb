@@ -40,7 +40,7 @@ class MemberRow < Scraped::HTML
   END_INDICATORS = %w[resigned died].to_set
 
   def vacant?
-    tds[2].text == 'Vacant'
+    tds[2].text.tidy == 'Vacant'
   end
 
   field :id do
