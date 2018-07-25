@@ -91,4 +91,4 @@ class MemberRow < Scraped::HTML
 end
 
 url = 'https://en.wikipedia.org/wiki/List_of_members_of_the_16th_Lok_Sabha'
-Scraped::Scraper.new(url => MembersPage).store(:members, index: %i[id])
+Scraped::Scraper.new(url => MembersPage).store(:members, index: %i[name party constituency])
